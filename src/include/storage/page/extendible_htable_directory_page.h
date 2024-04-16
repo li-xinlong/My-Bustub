@@ -175,7 +175,7 @@ class ExtendibleHTableDirectoryPage {
   void DecrLocalDepth(uint32_t bucket_idx);
 
   /**
-   * VerifyIntegrity
+   * VerifyIntegritynow_num_
    *
    * Verify the following invariants:
    * (1) All LD <= GD.
@@ -192,6 +192,7 @@ class ExtendibleHTableDirectoryPage {
  private:
   uint32_t max_depth_;
   uint32_t global_depth_;
+  uint32_t now_num_;
   uint8_t local_depths_[HTABLE_DIRECTORY_ARRAY_SIZE];
   page_id_t bucket_page_ids_[HTABLE_DIRECTORY_ARRAY_SIZE];
 };

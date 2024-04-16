@@ -15,51 +15,119 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include <deque>
 #include "common/config.h"
 #include "common/logger.h"
-
 namespace bustub {
 
 void ExtendibleHTableDirectoryPage::Init(uint32_t max_depth) {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  if (max_depth > 2) {
+    max_depth = 2;
+  }
+  max_depth_ = max_depth;
+  global_depth_ = 0;
+  now_num_ = 1;
+  for (uint32_t i = 0; i < HTABLE_DIRECTORY_ARRAY_SIZE; i++) {
+    local_depths_[i] = 0;
+  }
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
-auto ExtendibleHTableDirectoryPage::HashToBucketIndex(uint32_t hash) const -> uint32_t { return 0; }
+auto ExtendibleHTableDirectoryPage::HashToBucketIndex(uint32_t hash) const -> uint32_t {
+  std::deque<int> binary_hash;
+  // uint32_t i = max_depth_;
+  while (hash > 0) {
+    // 将 n 的最低位与 1 进行按位与操作，得到当前位的值
+    int bit = hash & 1;
+    // 将当前位的值转换为字符，添加到二进制字符串的开头
+    binary_hash.push_front(bit);
+    // 将 n 右移一位，继续处理下一位
+    hash >>= 1;
+  }
+  while (binary_hash.size() < 32) {
+    binary_hash.push_front(0);
+  }
+  uint32_t index = 0;
+  for (uint32_t j = 0; j < global_depth_; j++) {
+    if (binary_hash.back()) {
+      index += (1 << j);
+    }
+    binary_hash.pop_back();
+  }
+  return index;
+  // 该函数已实现
+}
 
-auto ExtendibleHTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) const -> page_id_t { return INVALID_PAGE_ID; }
+auto ExtendibleHTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) const -> page_id_t {
+  return bucket_page_ids_[bucket_idx];
+  // 该函数已实现
+}
 
 void ExtendibleHTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id) {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  bucket_page_ids_[bucket_idx] = bucket_page_id;
+  //   throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  // 该函数已实现
 }
 
-auto ExtendibleHTableDirectoryPage::GetSplitImageIndex(uint32_t bucket_idx) const -> uint32_t { return 0; }
+auto ExtendibleHTableDirectoryPage::GetSplitImageIndex(uint32_t bucket_idx) const -> uint32_t {
+  // if () {
+  // }
+  return 0;
+}
 
-auto ExtendibleHTableDirectoryPage::GetGlobalDepth() const -> uint32_t { return 0; }
+auto ExtendibleHTableDirectoryPage::GetGlobalDepth() const -> uint32_t { return global_depth_; }
 
 void ExtendibleHTableDirectoryPage::IncrGlobalDepth() {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  global_depth_++;
+
+  for (uint32_t i = 0; i < now_num_; i++) {
+    local_depths_[i + now_num_] = local_depths_[i];
+    bucket_page_ids_[i + now_num_] = bucket_page_ids_[i];
+  }
+  now_num_ = now_num_ << 1;
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
 void ExtendibleHTableDirectoryPage::DecrGlobalDepth() {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  global_depth_--;
+  now_num_ = now_num_ >> 1;
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
-auto ExtendibleHTableDirectoryPage::CanShrink() -> bool { return false; }
+auto ExtendibleHTableDirectoryPage::CanShrink() -> bool {
+  bool bo = true;
+  for (uint32_t i = 0; i < now_num_; i++) {
+    if (local_depths_[i] == global_depth_) {
+      bo = false;
+      break;
+    }
+  }
+  return bo;
+}
 
-auto ExtendibleHTableDirectoryPage::Size() const -> uint32_t { return 0; }
+auto ExtendibleHTableDirectoryPage::Size() const -> uint32_t {
+  return now_num_;
+  // 该函数已实现
+}
 
-auto ExtendibleHTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) const -> uint32_t { return 0; }
+auto ExtendibleHTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) const -> uint32_t {
+  u_int32_t local_depth = local_depths_[bucket_idx];
+  return local_depth;
+}
 
 void ExtendibleHTableDirectoryPage::SetLocalDepth(uint32_t bucket_idx, uint8_t local_depth) {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  local_depths_[bucket_idx] = local_depth;
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
 void ExtendibleHTableDirectoryPage::IncrLocalDepth(uint32_t bucket_idx) {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  local_depths_[bucket_idx]++;
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
 void ExtendibleHTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {
-  throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
+  local_depths_[bucket_idx]--;
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
 }  // namespace bustub
