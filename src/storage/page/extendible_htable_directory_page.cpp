@@ -70,9 +70,7 @@ void ExtendibleHTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id
 }
 
 auto ExtendibleHTableDirectoryPage::GetSplitImageIndex(uint32_t bucket_idx) const -> uint32_t {
-  // if () {
-  // }
-  return 0;
+  return bucket_idx + now_num_ / 2;
 }
 
 auto ExtendibleHTableDirectoryPage::GetGlobalDepth() const -> uint32_t { return global_depth_; }
@@ -129,5 +127,22 @@ void ExtendibleHTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {
   local_depths_[bucket_idx]--;
   // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
+auto ExtendibleHTableDirectoryPage::GetGlobalDepthMask() const -> uint32_t {
+  uint32_t mask = 0;
+  for (uint32_t i = 0; i < global_depth_; ++i) {
+    mask |= (1 << i);  // 将第 i 位设为 1
+  }
+  return mask;
+}
+auto ExtendibleHTableDirectoryPage::GetLocalDepthMask(uint32_t bucket_idx) const -> uint32_t {
+  uint32_t local_depth = local_depths_[bucket_idx];
 
+  // 构建局部深度掩码
+  uint32_t mask = 0;
+  for (uint32_t i = 0; i < local_depth; ++i) {
+    mask |= (1 << i);  // 将第 i 位设为 1
+  }
+
+  return mask;
+}
 }  // namespace bustub
