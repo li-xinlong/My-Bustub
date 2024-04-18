@@ -233,39 +233,50 @@ auto DiskExtendibleHashTable<K, V, KC>::Remove(const K &key, Transaction *transa
   BasicPageGuard bucket_guard = bpm_->FetchPageBasic(bucket_page_id);
   auto bucket = bucket_guard.AsMut<ExtendibleHTableBucketPage<K, V, KC>>();
   if (bucket->Remove(key, cmp_)) {
+    Merge(directory, bucket_idx);
+    if (directory->CanShrink()) {
+      directory->DecrGlobalDepth();
+    }
     return true;
   } else {
     return false;
   }
 }
-// template <typename K, typename V, typename KC>
-// void DiskExtendibleHashTable<K, V, KC>::MigrateEntries(ExtendibleHTableBucketPage<K, V, KC> *old_bucket,
-//                                                        ExtendibleHTableBucketPage<K, V, KC> *new_bucket,
-//                                                        uint32_t new_bucket_idx, uint32_t local_depth_mask) {
-//   // 如果新存储桶不为空，或者新存储桶的拆分映像与旧存储桶的拆分映像不同，则无法合并
-//   if (!new_bucket->IsEmpty()) {
-//     return;
-//   }
-
-//   // 如果新存储桶的拆分映像为空，则应继续以递归方式合并
-//   if (new_bucket->GetSplitImage() == nullptr) {
-//     uint32_t new_bucket_global_idx = new_bucket_idx & local_depth_mask;
-//     uint32_t old_bucket_global_idx = old_bucket->GetBucketIdx() & local_depth_mask;
-
-//     // 计算合并后的存储桶的新拆分映像
-//     uint32_t merged_global_idx = new_bucket_global_idx | (1 << (new_bucket->GetLocalDepth() - 1));
-//     uint32_t merged_bucket_idx = merged_global_idx & local_depth_mask;
-
-//     // 获取新合并存储桶的拆分映像存储桶
-//     ExtendibleHTableBucketPage<K, V, KC> *merged_bucket = directory_[merged_bucket_idx];
-
-//     // 递归调用合并函数
-//     MigrateEntries(old_bucket, merged_bucket, merged_bucket_idx, local_depth_mask);
-//   }
-
-//   // 合并完毕后，将新存储桶的拆分映像指向合并后的存储桶
-//   new_bucket->SetSplitImage(new_bucket->GetSplitImage());
-// }
+template <typename K, typename V, typename KC>
+void DiskExtendibleHashTable<K, V, KC>::Merge(ExtendibleHTableDirectoryPage *directory, uint32_t bucket_idx) {
+  page_id_t bucket_page_id = directory->GetBucketPageId(bucket_idx);
+  BasicPageGuard bucket_guard = bpm_->FetchPageBasic(bucket_page_id);
+  auto bucket = bucket_guard.AsMut<ExtendibleHTableBucketPage<K, V, KC>>();
+  if (bucket->IsEmpty()) {
+    uint32_t bucket_split_image_idx = directory->GetSplitImageIndex(bucket_idx);
+    page_id_t bucket_split_image_page_id = directory->GetBucketPageId(bucket_split_image_idx);
+    BasicPageGuard bucket_split_image_guard = bpm_->FetchPageBasic(bucket_split_image_page_id);
+    auto bucket_split_image = bucket_split_image_guard.AsMut<ExtendibleHTableBucketPage<K, V, KC>>();
+    if (bucket_page_id == bucket_split_image_page_id) {
+      return;
+    }
+    if (bucket_split_image->IsEmpty() &&
+        (directory->GetLocalDepth(bucket_idx) == directory->GetLocalDepth(bucket_split_image_idx))) {
+      if (bucket_idx < bucket_split_image_idx) {
+        bpm_->DeletePage(bucket_split_image_page_id);
+        directory->SetBucketPageId(bucket_split_image_idx, bucket_page_id);
+        directory->DecrLocalDepth(bucket_idx);
+        directory->DecrLocalDepth(bucket_split_image_idx);
+        // directory->SetLocalDepth(bucket_idx, 0);
+        // directory->SetLocalDepth(bucket_split_image_idx, 0);
+        Merge(directory, bucket_idx);
+      } else {
+        bpm_->DeletePage(bucket_page_id);
+        directory->SetBucketPageId(bucket_idx, bucket_split_image_page_id);
+        directory->DecrLocalDepth(bucket_idx);
+        directory->DecrLocalDepth(bucket_split_image_idx);
+        // directory->SetLocalDepth(bucket_idx, 0);
+        // directory->SetLocalDepth(bucket_split_image_idx, 0);
+        Merge(directory, bucket_split_image_idx);
+      }
+    }
+  }
+}
 
 template class DiskExtendibleHashTable<int, int, IntComparator>;
 template class DiskExtendibleHashTable<GenericKey<4>, RID, GenericComparator<4>>;

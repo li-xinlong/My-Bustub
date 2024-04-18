@@ -198,169 +198,21 @@ auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool {
 auto BufferPoolManager::AllocatePage() -> page_id_t { return next_page_id_++; }
 
 auto BufferPoolManager::FetchPageBasic(page_id_t page_id) -> BasicPageGuard {
-  // std::unique_lock<std::mutex> lock(latch_);
-  // if (page_table_.find(page_id) == page_table_.end()) {
-  //   if (free_list_.empty() && replacer_.get()->Size() == 0) {
-  //     // lock.unlock();
-  //     return {this, nullptr};
-  //   }
-  //   frame_id_t temp = 0;
-  //   if (!free_list_.empty()) {
-  //     temp = free_list_.front();
-  //     free_list_.pop_front();
-  //   } else {
-  //     replacer_.get()->Evict(&temp);
-  //     if (pages_[temp].IsDirty()) {
-  //       FlushPage(pages_[temp].GetPageId());
-  //     }
-  //     page_table_.erase(pages_[temp].GetPageId());
-  //   }
-  //   replacer_.get()->RecordAccess(temp);
-  //   replacer_.get()->SetEvictable(temp, false);
-
-  //   page_table_[page_id] = temp;
-
-  //   auto promise = disk_scheduler_.get()->CreatePromise();
-  //   auto future = promise.get_future();
-  //   DiskRequest tempRequest{false, pages_[temp].GetData(), page_id, std::move(promise)};
-  //   future.get();
-  //   pages_[temp].SetPageId(page_id);
-  //   pages_[temp].SetDirty(false);
-  //   pages_[temp].pin_count_ = 1;
-  //   // lock.unlock();
-  //   return {this, &pages_[temp]};
-  // } else {
-  //   auto it = page_table_.find(page_id);
-  //   frame_id_t temp = it->second;
-  //   pages_[temp].pin_count_ = 1;
-  //   pages_[temp].SetDirty(true);
-  //   replacer_.get()->RecordAccess(temp);
-  //   replacer_.get()->SetEvictable(temp, false);
-  //   // lock.unlock();
-  //   return {this, &pages_[temp]};
-  // }
-  // // return {this, nullptr};
   Page *page = FetchPage(page_id);
   return {this, page};
 }
 
 auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard {
-  // std::unique_lock<std::mutex> lock(latch_);
-  // if (page_table_.find(page_id) == page_table_.end()) {
-  //   if (free_list_.empty() && replacer_.get()->Size() == 0) {
-  //     // lock.unlock();
-  //     return {this, nullptr};
-  //   }
-  //   frame_id_t temp = 0;
-  //   if (!free_list_.empty()) {
-  //     temp = free_list_.front();
-  //     free_list_.pop_front();
-  //   } else {
-  //     replacer_.get()->Evict(&temp);
-  //     if (pages_[temp].IsDirty()) {
-  //       FlushPage(pages_[temp].GetPageId());
-  //     }
-  //     page_table_.erase(pages_[temp].GetPageId());
-  //   }
-  //   replacer_.get()->RecordAccess(temp);
-  //   replacer_.get()->SetEvictable(temp, false);
-
-  //   page_table_[page_id] = temp;
-
-  //   auto promise = disk_scheduler_.get()->CreatePromise();
-  //   auto future = promise.get_future();
-  //   DiskRequest tempRequest{false, pages_[temp].GetData(), page_id, std::move(promise)};
-  //   future.get();
-  //   pages_[temp].SetPageId(page_id);
-  //   pages_[temp].SetDirty(false);
-  //   pages_[temp].pin_count_ = 1;
-  //   // lock.unlock();
-  //   return {this, &pages_[temp]};
-  // } else {
-  //   auto it = page_table_.find(page_id);
-  //   frame_id_t temp = it->second;
-  //   pages_[temp].pin_count_++;
-  //   pages_[temp].SetDirty(true);
-  //   replacer_.get()->RecordAccess(temp);
-  //   replacer_.get()->SetEvictable(temp, false);
-  //   // lock.unlock();
-  //   return {this, &pages_[temp]};
   Page *page = FetchPage(page_id);
   return {this, page};
 }
 
 auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard {
-  // std::unique_lock<std::mutex> lock(latch_);
-  // if (page_table_.find(page_id) == page_table_.end()) {
-  //   if (free_list_.empty() && replacer_.get()->Size() == 0) {
-  //     // lock.unlock();
-  //     return {this, nullptr};
-  //   }
-  //   frame_id_t temp = 0;
-  //   if (!free_list_.empty()) {
-  //     temp = free_list_.front();
-  //     free_list_.pop_front();
-  //   } else {
-  //     replacer_.get()->Evict(&temp);
-  //     if (pages_[temp].IsDirty()) {
-  //       FlushPage(pages_[temp].GetPageId());
-  //     }
-  //     page_table_.erase(pages_[temp].GetPageId());
-  //   }
-  //   replacer_.get()->RecordAccess(temp);
-  //   replacer_.get()->SetEvictable(temp, false);
-
-  //   page_table_[page_id] = temp;
-
-  //   auto promise = disk_scheduler_.get()->CreatePromise();
-  //   auto future = promise.get_future();
-  //   DiskRequest tempRequest{false, pages_[temp].GetData(), page_id, std::move(promise)};
-  //   future.get();
-  //   pages_[temp].SetPageId(page_id);
-  //   pages_[temp].SetDirty(false);
-  //   pages_[temp].pin_count_ = 1;
-  //   // lock.unlock();
-  //   return {this, &pages_[temp]};
-  // } else {
-  //   auto it = page_table_.find(page_id);
-  //   frame_id_t temp = it->second;
-  //   pages_[temp].pin_count_++;
-  //   pages_[temp].SetDirty(true);
-  //   replacer_.get()->RecordAccess(temp);
-  //   replacer_.get()->SetEvictable(temp, false);
-  //   // lock.unlock();
-  //   return {this, &pages_[temp]};
   Page *page = FetchPage(page_id);
   return {this, page};
   // return {this, nullptr};
 }
 auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard {
-  // std::unique_lock<std::mutex> lock(latch_);
-  // if (free_list_.empty() && replacer_.get()->Size() == 0) {
-  //   // lock.unlock();
-  //   return {this, nullptr};
-  // }
-  // frame_id_t temp = 0;
-  // if (!free_list_.empty()) {
-  //   temp = free_list_.front();
-  //   free_list_.pop_front();
-  // } else {
-  //   replacer_.get()->Evict(&temp);
-  //   if (pages_[temp].IsDirty()) {
-  //     FlushPage(pages_[temp].GetPageId());
-  //   }
-  //   page_table_.erase(pages_[temp].GetPageId());
-  // }
-  // *page_id = AllocatePage();
-  // page_table_[*page_id] = temp;
-  // pages_[temp].ResetMemory();
-  // pages_[temp].SetPageId(*page_id);
-  // pages_[temp].SetDirty(false);
-  // pages_[temp].pin_count_ = 1;
-  // replacer_.get()->RecordAccess(temp);
-  // replacer_.get()->SetEvictable(temp, false);
-  // // lock.unlock();
-  // return {this, &pages_[temp]};
   Page *page = NewPage(page_id);
   return {this, page};
   // return {this, nullptr};

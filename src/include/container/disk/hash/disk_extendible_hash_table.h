@@ -122,7 +122,7 @@ class DiskExtendibleHashTable {
   void MigrateEntries(ExtendibleHTableBucketPage<K, V, KC> *old_bucket,
                       ExtendibleHTableBucketPage<K, V, KC> *new_bucket, uint32_t new_bucket_idx,
                       uint32_t local_depth_mask);
-
+  void Merge(ExtendibleHTableDirectoryPage *directory, uint32_t bucket_idx);
   // member variables
   std::string index_name_;
   BufferPoolManager *bpm_;
@@ -132,9 +132,6 @@ class DiskExtendibleHashTable {
   uint32_t directory_max_depth_;
   uint32_t bucket_max_size_;
   page_id_t header_page_id_;
-  // ExtendibleHTableHeaderPage *header_;
-  // std::vector<ExtendibleHTableDirectoryPage> directory;
-  // std::vector<ExtendibleHTableBucketPage<K, V, KC> > bucket;
 };
 
 }  // namespace bustub

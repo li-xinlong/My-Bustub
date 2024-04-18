@@ -70,7 +70,11 @@ void ExtendibleHTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id
 }
 
 auto ExtendibleHTableDirectoryPage::GetSplitImageIndex(uint32_t bucket_idx) const -> uint32_t {
-  return bucket_idx + now_num_ / 2;
+  if (bucket_idx < now_num_ / 2) {
+    return bucket_idx + now_num_ / 2;
+  } else {
+    return bucket_idx - now_num_ / 2;
+  }
 }
 
 auto ExtendibleHTableDirectoryPage::GetGlobalDepth() const -> uint32_t { return global_depth_; }
@@ -87,8 +91,10 @@ void ExtendibleHTableDirectoryPage::IncrGlobalDepth() {
 }
 
 void ExtendibleHTableDirectoryPage::DecrGlobalDepth() {
-  global_depth_--;
-  now_num_ = now_num_ >> 1;
+  if (global_depth_ > 0) {
+    global_depth_--;
+    now_num_ = now_num_ >> 1;
+  }
   // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
@@ -124,7 +130,9 @@ void ExtendibleHTableDirectoryPage::IncrLocalDepth(uint32_t bucket_idx) {
 }
 
 void ExtendibleHTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {
-  local_depths_[bucket_idx]--;
+  if (local_depths_[bucket_idx] > 0) {
+    local_depths_[bucket_idx]--;
+  }
   // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 auto ExtendibleHTableDirectoryPage::GetGlobalDepthMask() const -> uint32_t {

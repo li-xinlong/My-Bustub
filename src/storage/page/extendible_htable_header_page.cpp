@@ -45,6 +45,7 @@ auto ExtendibleHTableHeaderPage::HashToDirectoryIndex(uint32_t hash) const -> ui
     }
     binary_hash.pop_back();
   }
+
   return index;
   // 该函数已实现
 }
