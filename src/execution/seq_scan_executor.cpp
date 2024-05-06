@@ -31,9 +31,9 @@ auto SeqScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   if (iterator_->IsEnd()) {
     return false;
   } else {
-    for (int i = 0; !iterator_->IsEnd(); i++) {
-      ++(*iterator_);
+    while (!iterator_->IsEnd()) {
       std::pair<TupleMeta, Tuple> temp = iterator_->GetTuple();
+      ++(*iterator_);
       if (temp.first.is_deleted_) {
         continue;
       } else {

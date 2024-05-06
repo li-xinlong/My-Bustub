@@ -28,6 +28,7 @@ void InsertExecutor::Init() {
   table_oid_t table_oid = plan_->GetTableOid();
   TableInfo *tableinfo = catalog->GetTable(table_oid);
   table_heap_ = std::move(tableinfo->table_);
+  indexes_ = catalog->GetTableIndexes(tableinfo->name_);
   child_executor_->Init();
   //   throw NotImplementedException("InsertExecutor is not implemented");
 }
@@ -45,6 +46,8 @@ auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
   meta.ts_ = ts++;
   meta.is_deleted_ = false;
   table_heap_->InsertTuple(meta, *tuple, lockmar, transaction, table_oid);
+  for (auto it = indexes_.begin(); it != indexes_.end(); ++it) {
+  }
   return true;
 }
 }  // namespace bustub
