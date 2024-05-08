@@ -33,13 +33,19 @@ auto SeqScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   } else {
     while (!iterator_->IsEnd()) {
       std::pair<TupleMeta, Tuple> temp = iterator_->GetTuple();
+      Catalog *catalog = exec_ctx_->GetCatalog();
+      table_oid_t table_oid = plan_->GetTableOid();
+      TableInfo *tableinfo = catalog->GetTable(table_oid);
       ++(*iterator_);
       if (temp.first.is_deleted_) {
         continue;
       } else {
-        *tuple = temp.second;
-        *rid = temp.second.GetRid();
-        return true;
+        if (plan_->filter_predicate_ == nullptr ||
+            plan_->filter_predicate_->Evaluate(&temp.second, tableinfo->schema_).GetAs<bool>()) {
+          *tuple = temp.second;
+          *rid = temp.second.GetRid();
+          return true;
+        }
       }
     }
     return false;
