@@ -63,21 +63,21 @@ void NestedLoopJoinExecutor::Init() {
   while (left_executor_->Next(&left_tuple, &left_rid)) {
     left_tuple_vector.emplace_back(left_tuple);
   }
+  is_have_right_tuple = right_executor_->Next(&right_tuple, &right_rid);
   // throw NotImplementedException("NestedLoopJoinExecutor is not implemented");
 }
 
 auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool {
-  for (; i < left_tuple_vector.size() && !bo; i++) {
+  for (; i < left_tuple_vector.size(); i++, left_have_right = 0) {
     left_tuple = left_tuple_vector[i];
-    while (right_executor_->Next(&right_tuple, &right_rid)) {
+    while (is_have_right_tuple) {
       if (plan_->GetJoinType() == JoinType::INNER) {
         auto evaluateJoinRet = plan_->Predicate()->EvaluateJoin(&left_tuple, left_executor_->GetOutputSchema(),
                                                                 &right_tuple, right_executor_->GetOutputSchema());
         if (!evaluateJoinRet.IsNull() && evaluateJoinRet.GetAs<bool>()) {
           *tuple = BuildInnerJoinTuple(&left_tuple, &right_tuple);
           *rid = tuple->GetRid();
-          // right_executor_->Init();
-          i++;
+          is_have_right_tuple = right_executor_->Next(&right_tuple, &right_rid);
           return true;
         }
       } else if (plan_->GetJoinType() == JoinType::LEFT) {
@@ -86,25 +86,31 @@ auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool {
         if (!evaluateJoinRet.IsNull() && evaluateJoinRet.GetAs<bool>()) {
           *tuple = BuildInnerJoinTuple(&left_tuple, &right_tuple);
           *rid = tuple->GetRid();
-          size++;
-          i++;
-          // right_executor_->Init();
+          size = i + 1;
+          is_have_right_tuple = right_executor_->Next(&right_tuple, &right_rid);
+          left_have_right = 1;
           return true;
         }
       }
+      is_have_right_tuple = right_executor_->Next(&right_tuple, &right_rid);
     }
     right_executor_->Init();
-    if (i == left_tuple_vector.size() - 1 && plan_->GetJoinType() == JoinType::LEFT) {
-      bo = 1;
+    is_have_right_tuple = right_executor_->Next(&right_tuple, &right_rid);
+    if (!left_have_right && plan_->GetJoinType() == JoinType::LEFT) {
+      left_tuple = left_tuple_vector[i];
+      *tuple = BuildLeftJoinTuple(&left_tuple);
+      *rid = tuple->GetRid();
+      i++;
+      return true;
     }
   }
   // while (is_have_left_tuple && bo) {
-  if (bo && (size < left_tuple_vector.size())) {
-    left_tuple = left_tuple_vector[size++];
-    *tuple = BuildLeftJoinTuple(&left_tuple);
-    *rid = tuple->GetRid();
-    return true;
-  }
+  // if (bo && (size < left_tuple_vector.size())) {
+  //   left_tuple = left_tuple_vector[size++];
+  //   *tuple = BuildLeftJoinTuple(&left_tuple);
+  //   *rid = tuple->GetRid();
+  //   return true;
+  // }
   return false;
 }
 
