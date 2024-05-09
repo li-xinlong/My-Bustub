@@ -25,7 +25,7 @@ InsertExecutor::InsertExecutor(ExecutorContext *exec_ctx, const InsertPlanNode *
 
 void InsertExecutor::Init() {
   child_executor_->Init();
-  //   throw NotImplementedException("InsertExecutor is not implemented");
+  // throw NotImplementedException("InsertExecutor is not implemented");
 }
 
 auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
@@ -58,4 +58,5 @@ auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
   bo = true;
   return true;
 }
+
 }  // namespace bustub

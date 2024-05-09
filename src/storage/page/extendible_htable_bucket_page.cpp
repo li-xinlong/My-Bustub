@@ -20,12 +20,8 @@ namespace bustub {
 
 template <typename K, typename V, typename KC>
 void ExtendibleHTableBucketPage<K, V, KC>::Init(uint32_t max_size) {
-  // if (max_size > 2) {
-  //   max_size = 2;
-  // }
   max_size_ = max_size;
   size_ = 0;
-
   // throw NotImplementedException("ExtendibleHTableBucketPage not implemented");
 }
 
@@ -86,6 +82,7 @@ auto ExtendibleHTableBucketPage<K, V, KC>::KeyAt(uint32_t bucket_idx) const -> K
 template <typename K, typename V, typename KC>
 auto ExtendibleHTableBucketPage<K, V, KC>::ValueAt(uint32_t bucket_idx) const -> V {
   return array_[bucket_idx].second;
+  ;
 }
 
 template <typename K, typename V, typename KC>
@@ -115,6 +112,7 @@ auto ExtendibleHTableBucketPage<K, V, KC>::IsEmpty() const -> bool {
     return false;
   }
 }
+
 template class ExtendibleHTableBucketPage<int, int, IntComparator>;
 template class ExtendibleHTableBucketPage<GenericKey<4>, RID, GenericComparator<4>>;
 template class ExtendibleHTableBucketPage<GenericKey<8>, RID, GenericComparator<8>>;

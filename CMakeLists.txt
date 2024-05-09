@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
+set(CMAKE_C_COMPILER "/usr/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # For clang-tidy.
 set(BUILD_SHARED_LIBS OFF) # We expect external libraries to be linked statically.
 set(CMAKE_CXX_STANDARD 17) # Compile as C++17.
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # Require C++17 support.
-set(CMAKE_C_COMPILER "/usr/bin/clang")
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+
 project(BusTub
         VERSION 2023.1
         DESCRIPTION "The BusTub Relational Database Management System (Educational) @ https://github.com/cmu-db/bustub"
@@ -352,6 +353,7 @@ set(P3_FILES
         "src/optimizer/sort_limit_as_topn.cpp"
         "src/optimizer/optimizer_internal.cpp"
         "src/optimizer/seqscan_as_indexscan.cpp"
+        "src/optimizer/column_pruning.cpp"
         "src/common/bustub_ddl.cpp"
         "src/include/execution/plans/topn_per_group_plan.h"
         ${P2_FILES}

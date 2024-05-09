@@ -44,15 +44,15 @@ DiskExtendibleHashTable<K, V, KC>::DiskExtendibleHashTable(const std::string &na
   BasicPageGuard header_guard = bpm->NewPageGuarded(&header_page_id_);
   auto header = header_guard.AsMut<ExtendibleHTableHeaderPage>();
   header->Init(header_max_depth_);
+  // throw NotImplementedException("DiskExtendibleHashTable is not implemented");
 }
 
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
 template <typename K, typename V, typename KC>
-auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *result, Transaction *transaction) const
-    -> bool {
-  // transaction->Begin();
+auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *result,
+                                                 Transaction *transaction) const -> bool {
   BasicPageGuard header_guard = bpm_->FetchPageBasic(header_page_id_);
   auto header = header_guard.AsMut<ExtendibleHTableHeaderPage>();
   uint32_t hash = Hash(key);
@@ -80,7 +80,6 @@ auto DiskExtendibleHashTable<K, V, KC>::GetValue(const K &key, std::vector<V> *r
 
 template <typename K, typename V, typename KC>
 auto DiskExtendibleHashTable<K, V, KC>::Insert(const K &key, const V &value, Transaction *transaction) -> bool {
-  // transaction->Begin();
   BasicPageGuard header_guard = bpm_->FetchPageBasic(header_page_id_);
   auto header = header_guard.AsMut<ExtendibleHTableHeaderPage>();
   uint32_t hash = Hash(key);
@@ -172,16 +171,15 @@ auto DiskExtendibleHashTable<K, V, KC>::Insert(const K &key, const V &value, Tra
 }
 
 template <typename K, typename V, typename KC>
-auto DiskExtendibleHashTable<K, V, KC>::InsertToNewDirectory(ExtendibleHTableHeaderPage *header_,
-                                                             uint32_t directory_idx, uint32_t hash, const K &key,
-                                                             const V &value) -> bool {
-  page_id_t directory_page_id = header_->GetDirectoryPageId(directory_idx);
+auto DiskExtendibleHashTable<K, V, KC>::InsertToNewDirectory(ExtendibleHTableHeaderPage *header, uint32_t directory_idx,
+                                                             uint32_t hash, const K &key, const V &value) -> bool {
+  page_id_t directory_page_id = header->GetDirectoryPageId(directory_idx);
   // BasicPageGuard directory_guard = bpm_->FetchPageBasic(directory_page_id);
   // auto directory = directory_guard.AsMut<ExtendibleHTableDirectoryPage>();
   if (directory_page_id == HEADER_PAGE_ID) {
     page_id_t page_id;
     bpm_->NewPageGuarded(&page_id);
-    header_->SetDirectoryPageId(directory_idx, page_id);
+    header->SetDirectoryPageId(directory_idx, page_id);
     return true;
   } else {
     return false;
@@ -210,7 +208,6 @@ void DiskExtendibleHashTable<K, V, KC>::UpdateDirectoryMapping(ExtendibleHTableD
                                                                uint32_t new_local_depth, uint32_t local_depth_mask) {
   directory->SetBucketPageId(new_bucket_idx, new_bucket_page_id);
   directory->SetLocalDepth(new_bucket_idx, new_local_depth);
-
   // throw NotImplementedException("DiskExtendibleHashTable is not implemented");
 }
 

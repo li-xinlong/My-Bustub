@@ -23,14 +23,15 @@ auto ORSet<T>::Contains(const T &elem) const -> bool {
 
 template <typename T>
 void ORSet<T>::Add(const T &elem, uid_t uid) {
-  // TODO(student): Implement this
   E.push_back(elem);
   Ve.push_back(uid);
+  // TODO(student): Implement this
   // throw NotImplementedException("ORSet<T>::Add is not implemented");
 }
 
 template <typename T>
 void ORSet<T>::Remove(const T &elem) {
+  // TODO(student): Implement this
   std::vector<int>::size_type i = 0;
   T temp;
   for (i = 0; i < E.size(); i++) {
@@ -42,11 +43,8 @@ void ORSet<T>::Remove(const T &elem) {
       Ve.erase(Ve.begin() + i);
     }
   }
-  // TODO(student): Implement this
-
   // throw NotImplementedException("ORSet<T>::Remove is not implemented");
 }
-
 template <typename T>
 int ORSet<T>::ContainE(const T &elem, uid_t uid) {
   std::vector<int>::size_type k = 0;
@@ -96,7 +94,6 @@ void ORSet<T>::Merge(const ORSet<T> &other) {
       Vd.push_back(uid);
     }
   }  // 去除E中与other.D的重复值，以及去除D中与other.D的重复值
-
   // throw NotImplementedException("ORSet<T>::Merge is not implemented");
 }
 

@@ -45,7 +45,6 @@ constexpr auto HTableBucketArraySize(uint64_t mapping_type_size) -> uint64_t {
  * Bucket page for extendible hash table.
  */
 template <typename KeyType, typename ValueType, typename KeyComparator>
-#define MappingType std::pair<KeyType, ValueType>
 class ExtendibleHTableBucketPage {
  public:
   // Delete all constructor / destructor to ensure memory safety

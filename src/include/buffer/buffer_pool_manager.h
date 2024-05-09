@@ -77,7 +77,6 @@ class BufferPoolManager {
    *
    * @brief PageGuard wrapper for NewPage
    *
-   *
    * Functionality should be the same as NewPage, except that
    * instead of returning a pointer to a page, you return a
    * BasicPageGuard structure.
@@ -183,7 +182,7 @@ class BufferPoolManager {
   /** Array of buffer pool pages. */
   Page *pages_;
   /** Pointer to the disk sheduler. */
-  std::unique_ptr<DiskScheduler> disk_scheduler_;
+  std::unique_ptr<DiskScheduler> disk_scheduler_ __attribute__((__unused__));
   /** Pointer to the log manager. Please ignore this for P1. */
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */

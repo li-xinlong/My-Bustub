@@ -38,17 +38,17 @@ class Page {
 
   /** Default destructor. */
   ~Page() { delete[] data_; }
-
-  /** @return the actual data contained within this page */
-  inline auto GetData() -> char * { return data_; }
-
-  /** @return the page id of this page */
-  inline auto GetPageId() -> page_id_t { return page_id_; }
   inline auto SetPageId(page_id_t page_ID) { page_id_ = page_ID; }
   inline auto ResetPageId() { page_id_ = INVALID_PAGE_ID; }
 
   inline auto ResetDirty() { is_dirty_ = false; }
   inline auto SetDirty(bool isdirty) { is_dirty_ = isdirty; }
+  /** @return the actual data contained within this page */
+  inline auto GetData() -> char * { return data_; }
+
+  /** @return the page id of this page */
+  inline auto GetPageId() -> page_id_t { return page_id_; }
+
   /** @return the pin count of this page */
   inline auto GetPinCount() -> int { return pin_count_; }
 

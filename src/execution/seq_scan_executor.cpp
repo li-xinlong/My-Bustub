@@ -24,7 +24,7 @@ void SeqScanExecutor::Init() {
   TableInfo *tableinfo = catalog->GetTable(table_oid);
   auto &tableheap = tableinfo->table_;
   iterator_ = std::make_unique<TableIterator>(tableheap->MakeIterator());
-  //   throw NotImplementedException("SeqScanExecutor is not implemented");
+  // throw NotImplementedException("SeqScanExecutor is not implemented");
 }
 
 auto SeqScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {

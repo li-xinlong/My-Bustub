@@ -70,7 +70,7 @@ auto BufferPoolManager::NewPage(page_id_t *page_id) -> Page * {
   return &pages_[temp];
 }
 
-auto BufferPoolManager::FetchPage(page_id_t page_id, AccessType access_type) -> Page * {
+auto BufferPoolManager::FetchPage(page_id_t page_id, [[maybe_unused]] AccessType access_type) -> Page * {
   std::unique_lock<std::mutex> lock(latch_);
   if (page_table_.find(page_id) == page_table_.end()) {
     if (free_list_.empty() && replacer_.get()->Size() == 0) {
@@ -115,7 +115,7 @@ auto BufferPoolManager::FetchPage(page_id_t page_id, AccessType access_type) -> 
   }
 }
 
-auto BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type) -> bool {
+auto BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty, [[maybe_unused]] AccessType access_type) -> bool {
   std::unique_lock<std::mutex> lock(latch_);
   if (page_table_.find(page_id) == page_table_.end()) {
     // lock.unlock();
@@ -137,7 +137,6 @@ auto BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty, AccessType a
 }
 
 auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool {
-  // std::unique_lock<std::mutex> lock(latch_);
   if (page_table_.find(page_id) == page_table_.end()) {
     // lock.unlock();
     return false;
@@ -160,12 +159,9 @@ auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool {
 }
 
 void BufferPoolManager::FlushAllPages() {
-  // std::unique_lock<std::mutex> lock(latch_);
-
   for (size_t i = 0; i < pool_size_; i++) {
     FlushPage(pages_[i].page_id_);
   }
-  // lock.unlock();
 }
 
 auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool {
@@ -210,12 +206,11 @@ auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard {
 auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard {
   Page *page = FetchPage(page_id);
   return {this, page};
-  // return {this, nullptr};
 }
+
 auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard {
   Page *page = NewPage(page_id);
   return {this, page};
-  // return {this, nullptr};
 }
 
 }  // namespace bustub

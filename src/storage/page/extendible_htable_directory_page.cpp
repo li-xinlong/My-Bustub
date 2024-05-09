@@ -11,13 +11,13 @@
 //===----------------------------------------------------------------------===//
 
 #include "storage/page/extendible_htable_directory_page.h"
-
 #include <algorithm>
+#include <deque>
 #include <unordered_map>
 
-#include <deque>
 #include "common/config.h"
 #include "common/logger.h"
+
 namespace bustub {
 
 void ExtendibleHTableDirectoryPage::Init(uint32_t max_depth) {
@@ -55,18 +55,15 @@ auto ExtendibleHTableDirectoryPage::HashToBucketIndex(uint32_t hash) const -> ui
     binary_hash.pop_back();
   }
   return index;
-  // 该函数已实现
 }
 
 auto ExtendibleHTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) const -> page_id_t {
   return bucket_page_ids_[bucket_idx];
-  // 该函数已实现
 }
 
 void ExtendibleHTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id) {
   bucket_page_ids_[bucket_idx] = bucket_page_id;
-  //   throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
-  // 该函数已实现
+  // throw NotImplementedException("ExtendibleHTableDirectoryPage is not implemented");
 }
 
 auto ExtendibleHTableDirectoryPage::GetSplitImageIndex(uint32_t bucket_idx) const -> uint32_t {
@@ -109,10 +106,7 @@ auto ExtendibleHTableDirectoryPage::CanShrink() -> bool {
   return bo;
 }
 
-auto ExtendibleHTableDirectoryPage::Size() const -> uint32_t {
-  return now_num_;
-  // 该函数已实现
-}
+auto ExtendibleHTableDirectoryPage::Size() const -> uint32_t { return now_num_; }
 
 auto ExtendibleHTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) const -> uint32_t {
   u_int32_t local_depth = local_depths_[bucket_idx];

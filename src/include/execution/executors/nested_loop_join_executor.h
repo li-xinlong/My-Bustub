@@ -41,8 +41,6 @@ class NestedLoopJoinExecutor : public AbstractExecutor {
   /** Initialize the join */
   void Init() override;
 
-  auto BuildLeftJoinTuple(Tuple *left_tuple) -> Tuple;
-  auto BuildInnerJoinTuple(Tuple *left_tuple, Tuple *right_tuple) -> Tuple;
   /**
    * Yield the next tuple from the join.
    * @param[out] tuple The next tuple produced by the join
@@ -53,6 +51,8 @@ class NestedLoopJoinExecutor : public AbstractExecutor {
 
   /** @return The output schema for the insert */
   auto GetOutputSchema() const -> const Schema & override { return plan_->OutputSchema(); };
+  auto BuildLeftJoinTuple(Tuple *left_tuple) -> Tuple;
+  auto BuildInnerJoinTuple(Tuple *left_tuple, Tuple *right_tuple) -> Tuple;
 
  private:
   /** The NestedLoopJoin plan node to be executed. */

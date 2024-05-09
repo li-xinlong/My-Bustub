@@ -175,7 +175,7 @@ class ExtendibleHTableDirectoryPage {
   void DecrLocalDepth(uint32_t bucket_idx);
 
   /**
-   * VerifyIntegritynow_num_
+   * VerifyIntegrity
    *
    * Verify the following invariants:
    * (1) All LD <= GD.

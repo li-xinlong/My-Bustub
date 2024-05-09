@@ -9,11 +9,11 @@
 // Copyright (c) 2015-2021, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
-
 #include "execution/executors/nested_loop_join_executor.h"
 #include <type/value_factory.h>
 #include "binder/table_ref/bound_join_ref.h"
 #include "common/exception.h"
+
 namespace bustub {
 
 NestedLoopJoinExecutor::NestedLoopJoinExecutor(ExecutorContext *exec_ctx, const NestedLoopJoinPlanNode *plan,
@@ -29,17 +29,6 @@ NestedLoopJoinExecutor::NestedLoopJoinExecutor(ExecutorContext *exec_ctx, const 
   }
 }
 
-void NestedLoopJoinExecutor::Init() {
-  left_executor_.get()->Init();
-  right_executor_.get()->Init();
-  while (left_executor_->Next(&left_tuple, &left_rid)) {
-    left_tuple_vector.emplace_back(left_tuple);
-  }
-  // while (right_executor_->Next(&right_tuple, &right_rid)) {
-  //   right_tuple_vector.emplace_back(right_tuple);
-  // }
-  // throw NotImplementedException("NestedLoopJoinExecutor is not implemented");
-}
 auto NestedLoopJoinExecutor::BuildLeftJoinTuple(Tuple *left_tuple) -> Tuple {
   std::vector<Value> values;
   values.reserve(GetOutputSchema().GetColumnCount());
@@ -68,24 +57,16 @@ auto NestedLoopJoinExecutor::BuildInnerJoinTuple(Tuple *left_tuple, Tuple *right
   tuple = Tuple(values, &(GetOutputSchema()));
   return tuple;
 }
+void NestedLoopJoinExecutor::Init() {
+  left_executor_.get()->Init();
+  right_executor_.get()->Init();
+  while (left_executor_->Next(&left_tuple, &left_rid)) {
+    left_tuple_vector.emplace_back(left_tuple);
+  }
+  // throw NotImplementedException("NestedLoopJoinExecutor is not implemented");
+}
+
 auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool {
-  // while (is_have_left_tuple && !bo) {
-  //   if (!right_executor_->Next(&right_tuple, &right_rid)) {
-  //     right_executor_->Init();
-  //     right_executor_->Next(&right_tuple, &right_rid);
-  //     is_have_left_tuple = left_executor_->Next(&left_tuple, &left_rid);
-  //     if (!is_have_left_tuple && plan_->GetJoinType() == JoinType::LEFT) {
-  //       bo = 1;
-  //       left_executor_->Init();
-  //       while (size >= 0) {
-  //         is_have_left_tuple = left_executor_->Next(&left_tuple, &left_rid);
-  //         size--;
-  //       }
-  //       break;
-  //     } else if (!is_have_left_tuple) {
-  //       break;
-  //     }
-  //   }
   for (; i < left_tuple_vector.size() && !bo; i++) {
     left_tuple = left_tuple_vector[i];
     while (right_executor_->Next(&right_tuple, &right_rid)) {
