@@ -104,13 +104,6 @@ auto NestedLoopJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool {
       return true;
     }
   }
-  // while (is_have_left_tuple && bo) {
-  // if (bo && (size < left_tuple_vector.size())) {
-  //   left_tuple = left_tuple_vector[size++];
-  //   *tuple = BuildLeftJoinTuple(&left_tuple);
-  //   *rid = tuple->GetRid();
-  //   return true;
-  // }
   return false;
 }
 

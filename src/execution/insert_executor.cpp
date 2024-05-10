@@ -35,14 +35,13 @@ auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
   int i = 0;
   while (child_executor_->Next(tuple, rid)) {
     Transaction *transaction = exec_ctx_->GetTransaction();
-    LockManager *lockmar = exec_ctx_->GetLockManager();
     table_oid_t table_oid = plan_->GetTableOid();
     Catalog *catalog = exec_ctx_->GetCatalog();
     TableInfo *tableinfo = catalog->GetTable(table_oid);
     TupleMeta meta;
     meta.ts_ = transaction->GetTransactionTempTs();
     meta.is_deleted_ = false;
-    *rid = tableinfo->table_->InsertTuple(meta, *tuple, lockmar, transaction, table_oid).value();
+    *rid = tableinfo->table_->InsertTuple(meta, *tuple).value();
     // transaction->AppendWriteSet(table_oid, *rid);
     auto indexes_ = catalog->GetTableIndexes(tableinfo->name_);
     for (auto it = indexes_.begin(); it != indexes_.end(); ++it) {

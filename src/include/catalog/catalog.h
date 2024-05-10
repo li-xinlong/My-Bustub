@@ -135,8 +135,8 @@ class Catalog {
    * @param create_table_heap whether to create a table heap for the new table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema, bool create_table_heap = true)
-      -> TableInfo * {
+  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema,
+                   bool create_table_heap = true) -> TableInfo * {
     if (table_names_.count(table_name) != 0) {
       return NULL_TABLE_INFO;
     }
@@ -258,8 +258,10 @@ class Catalog {
 
     // Populate the index with all tuples in table heap
     auto *table_meta = GetTable(table_name);
+    int i = 0;
     for (auto iter = table_meta->table_->MakeIterator(); !iter.IsEnd(); ++iter) {
       auto [meta, tuple] = iter.GetTuple();
+      i++;
       // we have to silently ignore the error here for a lot of reasons...
       index->InsertEntry(tuple.KeyFromTuple(schema, key_schema, key_attrs), tuple.GetRid(), txn);
     }
