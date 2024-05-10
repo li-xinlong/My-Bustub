@@ -9,6 +9,7 @@ SortExecutor::SortExecutor(ExecutorContext *exec_ctx, const SortPlanNode *plan,
 void SortExecutor::Init() {
   child_executor_->Init();
   tuples_.clear();
+
   Tuple child_tuple{};
   RID rid;
   while (child_executor_->Next(&child_tuple, &rid)) {

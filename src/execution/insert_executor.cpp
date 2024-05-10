@@ -41,13 +41,14 @@ auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
     TupleMeta meta;
     meta.ts_ = transaction->GetTransactionTempTs();
     meta.is_deleted_ = false;
-    *rid = tableinfo->table_->InsertTuple(meta, *tuple).value();
+    RID temp_rid;
+    temp_rid = tableinfo->table_->InsertTuple(meta, *tuple).value();
     // transaction->AppendWriteSet(table_oid, *rid);
     auto indexes_ = catalog->GetTableIndexes(tableinfo->name_);
     for (auto it = indexes_.begin(); it != indexes_.end(); ++it) {
       IndexInfo *index_temp = *it;
       index_temp->index_->InsertEntry(
-          tuple->KeyFromTuple(tableinfo->schema_, index_temp->key_schema_, index_temp->index_->GetKeyAttrs()), *rid,
+          tuple->KeyFromTuple(tableinfo->schema_, index_temp->key_schema_, index_temp->index_->GetKeyAttrs()), temp_rid,
           transaction);
     }
     i++;
