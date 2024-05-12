@@ -72,9 +72,8 @@ auto NestIndexJoinExecutor::Next(Tuple *tuple, RID *rid) -> bool {
     std::vector<bustub::RID> scan_rid;
     htable_->ScanKey(key_tuple, &scan_rid, exec_ctx_->GetTransaction());
     if (!scan_rid.empty()) {
-      Tuple right_tuple;
-      Tuple right_meta;
-      auto [right_meta, right_tuple] = table_info_->table_->GetTuple(scan_rid[0]);
+      auto right = table_info_->table_->GetTuple(scan_rid[0]);
+      Tuple right_tuple = right.second;
       *tuple = BuildInnerJoinTuple(&tuple_temp, &right_tuple);
       *rid = tuple->GetRid();
       return true;
